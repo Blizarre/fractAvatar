@@ -16,21 +16,13 @@ object FractalGenerator {
    *
    * @param brightness an offset added during the first stage of the conversion
    * @param contrast scaling foactor for the first pass
-   * @param colorCoeffs a List of three coefficients resp. for Red, Blue and Green value
+   * @param colorCoefficient a Tuple of three coefficients resp. for Red, Blue and Green value
    * @param n a number that will be converted to a color
    * @return The color as an int in the ARGB color model
    */
-  def toRGB(brightness: Double, contrast: Double, colorCoeffs: List[Double])(n: Double): Int = {
-    val values = for {
-      coeff <- colorCoeffs
-    } yield ((brightness + contrast * n) * coeff).toInt
-
-    // Shifting values to ARGB, adding alpha at 0xFF
-    val result = for {
-      x <- (0xFF::values) zip List(24, 16, 8, 0)
-    } yield (x._1 & 0xFF) << x._2
-
-    result.sum
+  def toRGB(brightness: Double, contrast: Double, colorCoefficient: (Double, Double, Double))(n: Double): Int = {
+    def toValue(coefficient: Double) = 0xFF & ((brightness + contrast * n) * coefficient).toInt
+    0xFF << 24 + toValue(colorCoefficient._1) << 16 + toValue(colorCoefficient._2) << 8 + toValue(colorCoefficient._3)
   }
 
 
